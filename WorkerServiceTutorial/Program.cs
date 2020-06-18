@@ -11,14 +11,22 @@ namespace WorkerServiceTutorial
     {
         public static void Main(string[] args)
         {
-            CreateHostBuilder(args).Build().Run();
+            IHost host = CreateHostBuilder(args).Build();
+            var monitorLoop = host.Services.GetRequiredService<MonitorLoop>();
+            monitorLoop.StartMonitorLoop();
+            host.Run();            
         }
 
         public static IHostBuilder CreateHostBuilder(string[] args) =>
             Host.CreateDefaultBuilder(args)
                 .ConfigureServices((hostContext, services) =>
                 {
-                    services.AddHostedService<Worker>();
+                    //services.AddHostedService<TimedHostedService>();
+                    //services.AddHostedService<ConsumeScopedServiceHostedService>();
+                    //services.AddScoped<IScopedProcessingService, ScopedProcessingService>();
+                    services.AddSingleton<MonitorLoop>();
+                    services.AddHostedService<QueuedHostedService>();
+                    services.AddSingleton<IBackgroundTaskQueue, BackgroundTaskQueue>();
                 });
     }
 }
